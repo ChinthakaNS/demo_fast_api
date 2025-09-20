@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   db:
     image: mysql:8.0
@@ -17,15 +15,23 @@ services:
       - mysql_data:/var/lib/mysql
 
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DEBUG_MODE: true
     container_name: fastapi_app
     restart: always
     depends_on:
       - db
     environment:
       DATABASE_URL: mysql+pymysql://user:userpassword@db:3306/blogapplication
+      DEBUG_MODE: true
     ports:
       - "8000:8000"
+    volumes:
+      - ./demo_fast_api:/app/demo_fast_api:ro
+    command: ["uvicorn", "demo_fast_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
 volumes:
   mysql_data:
